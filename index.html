@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>CSC3007 Assignment 2</title>
+</head>
+<body>
+<svg id="chart" viewBox="0 0 1000 1000"></svg> -->
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<script>
+  // Retrieve the data
+  fetch('https://data.gov.sg/api/action/datastore_search?resource_id=83c21090-bd19-4b54-ab6b-d999c251edcf')
+                .then(function (response) {
+                    console.log(response)
+                    return response.json();
+                })
+                .then(function (data) {
+                    records = data.result.records
+                    appendData(records)
+                    console.log(records);
+                })
+                .catch(function (err) {
+                    console.log(err);
+                });
+
+  // append the data to the chart
+  function appendData(records){
+    console.log(records)
+    var data = records
+
+    var margin = {top: 20, right: 20, bottom: 40, left: 40},
+    width = 1000 - margin.left - margin.right,
+    height = 1000 - margin.top - margin.bottom;
+
+    var chart = d3.select("#chart")
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    
+    // Add scales
+    var xScale = d3.scaleBand()
+    .domain(data.map(function(d) { return console.log(data[0].level_2)}))
+    .rangeRound([0, width])
+    .padding(0.1);
+
+    var yScale = d3.scaleLinear()
+    .domain([0, 100])
+    .rangeRound([height, 0]);
+  }
+</script>
+
+<div id="hellos">
+    <p>Hello World!</p>
+    <p>Hello World 2!</p>
+    <p>Hello World 3!</p>
+</div>
+
+<svg width="1000" height="1000"></svg>
+let data = [
+    {cx: 400, cy: 600, r:150, fill: "green", stroke: "black"},
+    {cx: 100, cy: 200, r:50, fill: "blue", stroke: "purple"},
+    {cx: 650, cy: 100, r:100, fill: "red", stroke: "orange"}
+]
+
+<script>
+  let xScale = d3.scaleLinear()
+    .domain([0,1000])
+    .range([0,600]);
+
+  let yScale = d3.scaleLinear()
+    .domain([0,1000])
+    .range([600,0]);
+</script>
+</body>
+</html>
