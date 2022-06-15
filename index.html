@@ -3,75 +3,237 @@
 <head>
   <meta charset="UTF-8">
   <title>CSC3007 Assignment 2</title>
+  <style>
+    .svgRect {
+      stroke: none;
+      fill: rgb(252, 172, 73);
+    }
+    .tooltip {	
+    position: absolute;			
+    text-align: center;								
+    padding: 5px;				
+    font: 12px sans-serif;		
+    background: lightsteelblue;	
+    border: 0px;		
+    border-radius: 8px;			
+    pointer-events: none;			
+    }
+  </style>
 </head>
 <body>
-<svg id="chart" viewBox="0 0 1000 1000"></svg> -->
+<center>
+<!-- add header for chart -->
+<h1>Number of Cases for Selected Major Offences<h1>
+
+<!-- add dropdown list -->
+<select id="d3-dropdown">
+  <option value="2011">2011</option>
+  <option value="2012">2012</option>
+  <option value="2013">2013</option>
+  <option value="2014">2014</option>
+  <option value="2015">2015</option>
+  <option value="2016">2016</option>
+  <option value="2017">2017</option>
+  <option value="2018">2018</option>
+  <option value="2019">2019</option>
+  <option value="2020">2020</option>
+</select>
+
+<svg id="chart" viewBox="0 0 1200 1200"></svg>
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
 
 <script>
-  // Retrieve the data
+  // fetch the data
   fetch('https://data.gov.sg/api/action/datastore_search?resource_id=83c21090-bd19-4b54-ab6b-d999c251edcf')
-                .then(function (response) {
-                    console.log(response)
-                    return response.json();
-                })
-                .then(function (data) {
-                    records = data.result.records
-                    appendData(records)
-                    console.log(records);
-                })
-                .catch(function (err) {
-                    console.log(err);
-                });
+              .then(function (response) {
+                  console.log(response)
+                  return response.json();
+              })
+              .then(function (data) {
+                  records = data.result.records
+                  console.log(records)
+                  main(records);
+              })
+              .catch(function (err) {
+                  console.log(err);
+              });
+  
+  ////////////////////////////////////////////
+  //             main function             //
+  //////////////////////////////////////////
+  
+  function main (records) {
 
-  // append the data to the chart
-  function appendData(records){
-    console.log(records)
-    var data = records
+    //create array to store the different year's dataset 
+    var data2011 = []
+    var data2012 = []
+    var data2013 = []
+    var data2014 = []
+    var data2015 = []
+    var data2016 = []
+    var data2017 = []
+    var data2018 = []
+    var data2019 = []
+    var data2020 = []
 
-    var margin = {top: 20, right: 20, bottom: 40, left: 40},
-    width = 1000 - margin.left - margin.right,
-    height = 1000 - margin.top - margin.bottom;
+    // sort the dataset into the respective array
+    for (i in records){
+      if (records[i].year === "2011") {
+        data2011.push(records[i])
+      } else if (records[i].year === "2012") {
+        data2012.push(records[i])
+      } else if (records[i].year === "2013") {
+        data2013.push(records[i])
+      } else if (records[i].year === "2014") {
+        data2014.push(records[i])
+      } else if (records[i].year === "2015") {
+        data2015.push(records[i])
+      } else if (records[i].year === "2016") {
+        data2016.push(records[i])
+      } else if (records[i].year === "2017") {
+        data2017.push(records[i])
+      } else if (records[i].year === "2018") {
+        data2018.push(records[i])
+      } else if (records[i].year === "2019") {
+        data2019.push(records[i])
+      } else if (records[i].year === "2020") {
+        data2020.push(records[i])
+      } 
+    } 
 
-    var chart = d3.select("#chart")
-    .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    let margin = {top: 20, right: 20, bottom: 40, left: 40},
+    width = 1200 - margin.left - margin.right,
+    height = 1200 - margin.top - margin.bottom;
 
+    let chart = d3.select("#chart")
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // Add x-scale
+    let xScale = d3.scaleBand()
+      .domain(data2011.map(function(d) { return d.level_2 }))
+      .rangeRound([0, width])
+      .padding(0.1);
+
+    // Add y-scale
+    let yScale = d3.scaleLinear()
+      .domain([0, d3.max(data2011.map(function(d) { return +d.value }))]) // use the max function to find max y-value
+      .rangeRound([height, 0]);
     
-    // Add scales
-    var xScale = d3.scaleBand()
-    .domain(data.map(function(d) { return console.log(data[0].level_2)}))
-    .rangeRound([0, width])
-    .padding(0.1);
+    // Add x-axis and set it at the bottom
+    chart.append("g")
+      .attr("class", "axis axis-x")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(xScale));
 
-    var yScale = d3.scaleLinear()
-    .domain([0, 100])
-    .rangeRound([height, 0]);
-  }
+    // Add y-axis and set it at the left
+    chart.append("g")
+      .attr("class", "axis axis-y")
+      .call(d3.axisLeft(yScale).ticks(10));
+
+    drawChart(data2011)
+
+    ////////////////////////////////////////////
+    //      function for draw the chart      //
+    //////////////////////////////////////////
+
+    function drawChart(dataset){
+
+      // Change the x-scale according to the year of the dataset
+      xScale.domain(dataset.map(function(d) { return d.level_2; }));
+      chart.select("g .axis-x")
+          .transition()
+          .duration(1000)
+          .call(d3.axisBottom(xScale));
+
+      // Change the y-scale according to the year of the dataset
+      yScale.domain([0, d3.max(dataset.map(function(d) { return +d.value }))]);
+      chart.select("g .axis-y")
+          .transition()
+          .duration(1000)
+          .call(d3.axisLeft(yScale).ticks(10));
+
+      // Define the div for the tooltip
+      var tooltip = d3.select("body")
+          .append("div")	
+          .attr("class", "tooltip")
+          .style("opacity", 0);				
+         
+
+      // Append rectangles 
+      chart.selectAll("rect")
+          .data(dataset)
+          .join(
+          enter => enter
+            .append("rect")
+            .attr("x", d => xScale(d.level_2))
+            .attr("y", d => yScale(d.value))
+            .attr("width", 0)
+            .attr("height", 0)
+            .attr("class", "svgRect")
+            .on("mouseover", function(d, data) {		
+              tooltip.html("Offence: " + data.level_2 + "<br/>" + "Total cases: " + data.value)
+                .style("visibility", "visible")
+                .style("opacity", 0.9)
+                .style('left', d.pageX + "px")
+                .style('top', d.pageY - 10 + "px");
+            })				
+            .on("mouseout", function(d) {	
+                d3.select(d.currentTarget).attr("stroke", "none");
+                tooltip.style("visibility", "hidden");
+            })
+          .call(enter => enter.transition()
+            .duration(1000)
+            .attr("width", xScale.bandwidth())
+            .attr("height", d => height - yScale(d.value))
+          ),
+          update => update 
+            .call(update => update.transition()
+              .duration(1000)
+              .attr("x", d => xScale(d.level_2))
+              .attr("y", d => yScale(d.value))
+              .attr("width", xScale.bandwidth())
+              .attr("height", d => height - yScale(d.value))
+            ),
+          exit => exit
+            .call(exit => exit.transition()
+              .duration(1000)
+              .attr("width", 0)
+              .attr("height", 0)
+              .remove()
+            )
+          );     
+    } // end of drawChart function
+
+    d3.select("select")
+      .on("change",function(d){
+        var selected = d3.select("#d3-dropdown").node().value;
+        if (selected === "2011"){
+          console.log( selected );
+        } else if (selected === "2012"){
+          drawChart(data2012)
+        } else if (selected === "2013"){
+          drawChart(data2013)
+        } else if (selected === "2014"){
+          drawChart(data2014)
+        } else if (selected === "2015"){
+          drawChart(data2015) 
+        } else if (selected === "2016"){
+          drawChart(data2016)  
+        } else if (selected === "2017"){
+          drawChart(data2017)  
+        } else if (selected === "2018"){
+          drawChart(data2018)  
+        } else if (selected === "2019"){
+          drawChart(data2019)  
+        } else if (selected === "2020"){
+          drawChart(data2020)  
+        }
+    });
+  } // end of main function
 </script>
 
-<div id="hellos">
-    <p>Hello World!</p>
-    <p>Hello World 2!</p>
-    <p>Hello World 3!</p>
-</div>
-
-<svg width="1000" height="1000"></svg>
-let data = [
-    {cx: 400, cy: 600, r:150, fill: "green", stroke: "black"},
-    {cx: 100, cy: 200, r:50, fill: "blue", stroke: "purple"},
-    {cx: 650, cy: 100, r:100, fill: "red", stroke: "orange"}
-]
-
-<script>
-  let xScale = d3.scaleLinear()
-    .domain([0,1000])
-    .range([0,600]);
-
-  let yScale = d3.scaleLinear()
-    .domain([0,1000])
-    .range([600,0]);
-</script>
+</center>
 </body>
 </html>
