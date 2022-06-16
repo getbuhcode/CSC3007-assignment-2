@@ -39,7 +39,7 @@
   <option value="2020">2020</option>
 </select>
 
-<svg id="chart" viewBox="0 0 1200 1200"></svg>
+<svg id="chart" viewBox="0 0 1200 600"></svg>
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
 
@@ -104,7 +104,7 @@
 
     let margin = {top: 20, right: 20, bottom: 40, left: 40},
     width = 1200 - margin.left - margin.right,
-    height = 1200 - margin.top - margin.bottom;
+    height = 600 - margin.top - margin.bottom;
 
     let chart = d3.select("#chart")
       .append("g")
